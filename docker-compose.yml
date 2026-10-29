@@ -12,6 +12,9 @@ services:
       - neo4j
 
   graphlang-analyzer:
+    # Opt-in: its cleanup wipes the whole database, including other analyzers' data.
+    # Run with: docker compose --profile graphlang up -d graphlang-analyzer
+    profiles: ["graphlang"]
     platform: linux/amd64
     build: ./graphlang
     env_file:
