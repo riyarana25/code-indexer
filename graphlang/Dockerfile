@@ -2,17 +2,17 @@
 FROM --platform=linux/amd64 golang:1.21 AS builder
 
 WORKDIR /analyzer
-COPY . .
+COPY go.mod go.sum ./
 RUN go mod download
+COPY . .
 
-# Build for linux/amd64
-RUN GOOS=linux GOARCH=amd64 go build -o graphlang-analyzer .
+# Build the cmd entrypoint (graphlang itself is a library package).
+# Tree-sitter grammars need cgo, so build against glibc and run on Debian.
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o graphlang-analyzer ./cmd/graphlang-analyzer
 
-# Explicitly set final stage platform to match the build
-FROM --platform=linux/amd64 alpine:3.18
+# Final stage uses the same Debian base as golang:1.21 so the cgo binary's libc matches
+FROM --platform=linux/amd64 debian:bookworm-slim
 
 WORKDIR /analyzer
-RUN apk add --no-cache libc6-compat libgcc
 COPY --from=builder /analyzer/graphlang-analyzer /analyzer/
-RUN chmod +x graphlang-analyzer
 CMD ["./graphlang-analyzer"]
