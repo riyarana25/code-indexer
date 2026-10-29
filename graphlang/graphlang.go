@@ -629,8 +629,8 @@ func (parser *TreeSitterParser) handleFunction(node *sitter.Node, tx neo4j.Manag
 			 f.returnType = $returnType
 		 WITH f
 		 OPTIONAL MATCH (t:Type {qualifiedName: $typeName})
-		 WHERE $typeName IS NOT NULL
-		 MERGE (t)-[:HAS_MEMBER]->(f)`,
+		 FOREACH (owner IN CASE WHEN t IS NULL THEN [] ELSE [t] END |
+			 MERGE (owner)-[:HAS_MEMBER]->(f))`,
 		map[string]any{
 			"id":            fmt.Sprintf("%s:%s", parser.ext, qualifiedName),
 			"name":          funcName,
@@ -913,8 +913,8 @@ func (parser *TreeSitterParser) handleType(node *sitter.Node, tx neo4j.ManagedTr
 			t.file = $file
 		WITH t
 		OPTIONAL MATCH (n:Namespace {name: $namespace})
-		WHERE $namespace IS NOT NULL
-		MERGE (n)-[:CONTAINS]->(t)`,
+		FOREACH (ns IN CASE WHEN n IS NULL THEN [] ELSE [n] END |
+			MERGE (ns)-[:CONTAINS]->(t))`,
 		map[string]any{
 			"id":            fmt.Sprintf("%s:%s", parser.ext, qualifiedName),
 			"name":          typeName,
