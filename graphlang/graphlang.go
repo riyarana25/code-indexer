@@ -312,9 +312,12 @@ func (parser *TreeSitterParser) cleanup() error {
 	}
 
 	schemaQueries := []string{
-		"CREATE INDEX IF NOT EXISTS FOR (n:Namespace) ON (n.id)",
-		"CREATE INDEX IF NOT EXISTS FOR (t:Type) ON (t.id)",
-		"CREATE INDEX IF NOT EXISTS FOR (f:Function) ON (f.id)",
+		// Uniqueness constraints (not plain indexes) so they match what the
+		// other analyzers create; Neo4j rejects a constraint on a label/property
+		// that already has a plain index, which broke whichever ran second.
+		"CREATE CONSTRAINT IF NOT EXISTS FOR (n:Namespace) REQUIRE n.id IS UNIQUE",
+		"CREATE CONSTRAINT IF NOT EXISTS FOR (t:Type) REQUIRE t.id IS UNIQUE",
+		"CREATE CONSTRAINT IF NOT EXISTS FOR (f:Function) REQUIRE f.id IS UNIQUE",
 	}
 
 	for _, query := range schemaQueries {
