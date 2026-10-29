@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/keshav-42/code-indexer/graphlang"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
+	"github.com/riyarana25/code-indexer/graphlang"
 )
 
 // createNeo4jDriver creates a Neo4j driver with retry logic.

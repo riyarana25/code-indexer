@@ -1,4 +1,4 @@
-module github.com/keshav-42/code-indexer/go
+module github.com/riyarana25/code-indexer/go
 
 go 1.23.0
 

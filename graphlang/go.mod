@@ -1,4 +1,4 @@
-module github.com/keshav-42/code-indexer/graphlang
+module github.com/riyarana25/code-indexer/graphlang
 
 go 1.21.6
 
