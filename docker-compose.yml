@@ -52,17 +52,18 @@ services:
       - neo4j
 
   neo4j:
-    image: neo4j:enterprise
+    image: neo4j:5-community
+    # Bound to localhost only; not reachable from other machines on the network
     ports:
-      - "7474:7474"
-      - "7687:7687"
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
     environment:
-      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
-      - NEO4J_AUTH=neo4j/myneo4jpass
+      # Password is read from .env (NEO4J_PASSWORD); Neo4j's initial user is always "neo4j"
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:?set NEO4J_PASSWORD in .env}
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
-      - NEO4J_PLUGINS=["apoc", "graph-data-science", "bloom"]
+      - NEO4J_PLUGINS=["apoc"]
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs

@@ -4,7 +4,10 @@ from neo4j import GraphDatabase, basic_auth
 
 URI      = os.getenv("NEO4J_URI",      "bolt://localhost:7687")
 USER     = os.getenv("NEO4J_USER",     "neo4j")
-PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
+PASSWORD = os.getenv("NEO4J_PASSWORD")
+
+if not PASSWORD:
+    raise RuntimeError("NEO4J_PASSWORD environment variable is required.")
 
 driver = GraphDatabase.driver(URI, auth=basic_auth(USER, PASSWORD))
 
