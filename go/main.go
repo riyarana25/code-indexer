@@ -273,8 +273,11 @@ func processGenDecl(ctx context.Context, x *ast.GenDecl, packageId, filePath str
 			typeId := fmt.Sprintf("%s.%s", packageId, typeName)
 			line := fset.Position(x.Pos()).Line
 
-			switch {
-			case typeSpec.Type.(*ast.StructType) != nil:
+			// Type switch, not single-value assertions: x.(*T) panics when the
+			// type doesn't match, which crashed on any interface or named type.
+			// Other type kinds (aliases, func types, named basics) are skipped.
+			switch typeSpec.Type.(type) {
+			case *ast.StructType:
 				_, err := session.Run(ctx,
 					"MERGE (s:Struct {id: $id}) "+
 						"ON CREATE SET s.name = $name, s.packageId = $packageId, s.project = $project, s.color = $color, s.url = $url",
@@ -302,7 +305,7 @@ func processGenDecl(ctx context.Context, x *ast.GenDecl, packageId, filePath str
 					log.Printf("Failed to link Package and Struct: %v", err)
 				}
 
-			case typeSpec.Type.(*ast.InterfaceType) != nil:
+			case *ast.InterfaceType:
 				_, err := session.Run(ctx,
 					"MERGE (i:Interface {id: $id}) "+
 						"ON CREATE SET i.name = $name, i.packageId = $packageId, i.project = $project, i.color = $color, i.url = $url",
